@@ -1,85 +1,98 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import API from "../services/api";
+import toast from "react-hot-toast";
+
+const schema = yup.object({
+  username: yup
+    .string()
+    .min(3, "Lo username deve avere almeno 3 caratteri")
+    .required("Lo username è obbligatorio"),
+  email: yup
+    .string()
+    .email("Inserisci un'email valida")
+    .required("L'email è obbligatoria"),
+  password: yup
+    .string()
+    .min(8, "La password deve avere almeno 8 caratteri")
+    .required("La password è obbligatoria"),
+});
+
+type RegisterFormInputs = yup.InferType<typeof schema>;
 
 const Register = () => {
-  const [username, setUsername] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
+  const { register, handleSubmit, reset } = useForm<RegisterFormInputs>({
+    resolver: yupResolver(schema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: RegisterFormInputs) => {
     try {
-      const res = await API.post("/api/auth/register", {
-        username,
-        email,
-        password
-      });
-      setMessage(res.data.message);
-      setUsername("");
-      setEmail("");
-      setPassword("");
+      const res = await API.post("/api/auth/register", data);
+      toast.success(res.data.message);
+      reset();
+      // puoi fare redirect qui
     } catch (err: any) {
       console.error(err);
-      setMessage(err.response?.data?.error || "Errore");
+      toast.error(
+        err.response?.data?.error || "Errore durante la registrazione"
+      );
     }
   };
 
   return (
-    <div className="flex items-center justify-center w-full min-h-screen bg-gradient-to-br from-blue-500 to-purple-600">
-      <div className="w-full max-w-md p-10 bg-white shadow-2xl rounded-3xl">
-        <h2 className="mb-8 text-3xl font-extrabold text-center text-gray-800">
+    <div
+      style={{ minHeight: "calc(100vh - 64px)" }}
+      className="flex justify-center items-center bg-gradient-to-br from-blue-500 to-purple-600"
+    >
+      <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md">
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-8">
           Crea il tuo account
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label className="block mb-1 font-medium text-gray-700">
+            <label className="block text-gray-700 font-medium mb-1">
               Username
             </label>
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
               placeholder="Inserisci il tuo username"
-              className="w-full px-4 py-3 transition border border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-300"
+              {...register("username")}
+              className="w-full text-black px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-300 transition"
             />
           </div>
+
           <div>
-            <label className="block mb-1 font-medium text-gray-700">
+            <label className="block text-gray-700 font-medium mb-1">
               Email
             </label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               placeholder="email@example.com"
-              className="w-full px-4 py-3 transition border border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-300"
+              {...register("email")}
+              className="w-full text-black px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-300 transition"
             />
           </div>
+
           <div>
-            <label className="block mb-1 font-medium text-gray-700">
+            <label className="block text-gray-700 font-medium mb-1">
               Password
             </label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-4 py-3 transition border border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-300"
+              {...register("password")}
+              className="w-full text-black px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-300 transition"
             />
           </div>
+
           <button
             type="submit"
-            className="w-full py-3 font-bold text-white transition transform shadow-lg rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:scale-105"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold hover:from-blue-600 hover:to-purple-700 transition transform hover:scale-105 shadow-lg"
           >
             Registrati
           </button>
         </form>
-        {message && (
-          <p className="mt-4 font-medium text-center text-green-600">
-            {message}
-          </p>
-        )}
       </div>
     </div>
   );
