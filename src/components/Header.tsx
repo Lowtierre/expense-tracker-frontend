@@ -20,8 +20,7 @@ const Header = () => {
       <div className="flex gap-8 items-center gap-4">
         {user ? (
           <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/expenses">Spese</Link>
+            <Link to="/">Spese</Link>
             <Link to="/profile">Profilo</Link>
             <Link to="/login" className="text-white" onClick={logout}>
               Logout

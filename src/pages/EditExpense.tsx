@@ -1,13 +1,12 @@
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { v4 as uuidv4 } from "uuid";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import API from "../services/api";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useAuth } from "../context/AuthContext";
 
 const categories = [
   { value: "", label: "-- Seleziona categoria --" },
@@ -33,7 +32,11 @@ const schema = yup.object({
 
 type ExpenseFormInputs = yup.InferType<typeof schema>;
 
-const AddExpense = () => {
+const EditExpense = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const {
     register,
     control,
@@ -44,22 +47,40 @@ const AddExpense = () => {
     resolver: yupResolver(schema),
   });
 
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  useEffect(() => {
+    const fetchExpense = async () => {
+      try {
+        const res = await API.get(`/api/expenses`);
+        const expense = res.data.find((e: any) => e.id === id);
+        if (expense) {
+          reset({
+            type: expense.type,
+            category: expense.category,
+            description: expense.description,
+            amount: expense.amount,
+            date: new Date(expense.date),
+          });
+        } else {
+          toast.error("Spesa non trovata");
+          navigate("/");
+        }
+      } catch (error: any) {
+        console.error(error);
+        toast.error(error.response?.data?.error || "Errore nel caricamento");
+        navigate("/");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExpense();
+  }, [id, navigate, reset]);
 
   const onSubmit = async (data: ExpenseFormInputs) => {
     try {
-      const payload = {
-        ...data,
-        userId: user?.id,
-        id: uuidv4(),
-      };
-
-      await API.post("/api/expenses", payload);
-      toast.success("Movimento salvato!");
-      reset();
-
-      navigate("/expenses");
+      await API.put(`/api/expenses/${id}`, data);
+      toast.success("Spesa aggiornata!");
+      navigate("/");
     } catch (error: any) {
       console.error(error);
       toast.error(
@@ -68,6 +89,17 @@ const AddExpense = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div
+        style={{ minHeight: "calc(100vh - 64px)" }}
+        className="flex justify-center items-center bg-gradient-to-br from-blue-500 to-purple-600"
+      >
+        <p className="text-white text-lg">Caricamento...</p>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{ minHeight: "calc(100vh - 64px)" }}
@@ -75,7 +107,7 @@ const AddExpense = () => {
     >
       <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md">
         <h2 className="text-3xl font-extrabold text-gray-800 mb-8">
-          Aggiungi Movimento
+          Modifica Movimento
         </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Tipo */}
@@ -162,6 +194,7 @@ const AddExpense = () => {
             )}
           </div>
 
+          {/* Importo + Data affiancati */}
           <div className="flex gap-4">
             {/* Importo */}
             <div className="w-1/2">
@@ -171,7 +204,6 @@ const AddExpense = () => {
               <input
                 type="number"
                 step="0.01"
-                min={0}
                 {...register("amount")}
                 placeholder="es. 50.00"
                 className={`w-full text-black px-4 py-3 rounded-xl border ${
@@ -218,12 +250,12 @@ const AddExpense = () => {
             </div>
           </div>
 
-          {/* Button */}
+          {/* Bottone */}
           <button
             type="submit"
             className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold hover:from-blue-600 hover:to-purple-700 transition transform hover:scale-105 shadow-lg"
           >
-            Salva
+            Salva Modifiche
           </button>
         </form>
       </div>
@@ -231,4 +263,4 @@ const AddExpense = () => {
   );
 };
 
-export default AddExpense;
+export default EditExpense;

@@ -1,14 +1,16 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import { Toaster } from "react-hot-toast";
 import Layout from "./components/Layout";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
-import Dashboard from "./pages/Dashboard";
 import Expenses from "./pages/Expenses";
 import AddExpense from "./pages/AddExpense";
 import Profile from "./pages/Profile";
+import EditExpense from "./pages/EditExpense";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -18,32 +20,36 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout />}>
-              {/* rotte pubbliche */}
-              <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
-
-              {/* rotte private */}
+              {/* ✅ Expenses è ora la pagina di default */}
               <Route
-                path="dashboard"
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="expenses"
+                index
                 element={
                   <PrivateRoute>
                     <Expenses />
                   </PrivateRoute>
                 }
               />
+
+              {/* rotte pubbliche */}
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
+              <Route path="reset-password" element={<ResetPassword />} />
+
+              {/* rotte private */}
               <Route
                 path="add-expense"
                 element={
                   <PrivateRoute>
                     <AddExpense />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="edit-expense/:id"
+                element={
+                  <PrivateRoute>
+                    <EditExpense />
                   </PrivateRoute>
                 }
               />
