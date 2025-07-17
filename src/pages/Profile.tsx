@@ -9,21 +9,21 @@ import { useEffect } from "react";
 const schema = yup.object({
   username: yup.string().required("Username obbligatorio"),
   email: yup.string().email("Email non valida").required("Email obbligatoria"),
-  currentPassword: yup.string().when("newPassword", {
-    is: (val: string) => val && val.length > 0,
-    then: (schema) => schema.required("Devi inserire la password attuale"),
-  }),
-  newPassword: yup
-    .string()
-    .min(8, "La nuova password deve avere almeno 8 caratteri")
-    .notRequired(),
-  confirmPassword: yup.string().when("newPassword", {
-    is: (val: string) => val && val.length > 0,
-    then: (schema) =>
-      schema
-        .required("Devi confermare la nuova password")
-        .oneOf([yup.ref("newPassword")], "Le due password non coincidono"),
-  }),
+  // currentPassword: yup.string().when("newPassword", {
+  //   is: (val: string) => val && val.length > 0,
+  //   then: (schema) => schema.required("Devi inserire la password attuale"),
+  // }),
+  // newPassword: yup
+  //   .string()
+  //   .min(8, "La nuova password deve avere almeno 8 caratteri")
+  //   .notRequired(),
+  // confirmPassword: yup.string().when("newPassword", {
+  //   is: (val: string) => val && val.length > 0,
+  //   then: (schema) =>
+  //     schema
+  //       .required("Devi confermare la nuova password")
+  //       .oneOf([yup.ref("newPassword")], "Le due password non coincidono"),
+  // }),
 });
 
 type ProfileFormInputs = yup.InferType<typeof schema>;
@@ -65,9 +65,9 @@ const Profile = () => {
       reset({
         username: data.username,
         email: data.email,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
+        // currentPassword: "",
+        // newPassword: "",
+        // confirmPassword: "",
       });
     } catch (error: any) {
       console.error(error);
@@ -143,7 +143,7 @@ const Profile = () => {
           </div>
 
           {/* Password attuale */}
-          <div>
+          {/* <div>
             <label className="block text-gray-700 font-medium mb-1">
               Password attuale
             </label>
@@ -162,10 +162,10 @@ const Profile = () => {
                 {errors.currentPassword.message}
               </p>
             )}
-          </div>
+          </div> */}
 
           {/* Nuova password */}
-          <div>
+          {/* <div>
             <label className="block text-gray-700 font-medium mb-1">
               Nuova Password
             </label>
@@ -184,10 +184,10 @@ const Profile = () => {
                 {errors.newPassword.message}
               </p>
             )}
-          </div>
+          </div> */}
 
           {/* Conferma password */}
-          <div>
+          {/* <div>
             <label className="block text-gray-700 font-medium mb-1">
               Conferma nuova password
             </label>
@@ -206,7 +206,7 @@ const Profile = () => {
                 {errors.confirmPassword.message}
               </p>
             )}
-          </div>
+          </div> */}
 
           <button
             type="submit"
