@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import toast from "react-hot-toast";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import { LuArrowDownFromLine, LuArrowUpToLine } from "react-icons/lu";
 
 export interface Expense {
   id: string;
@@ -16,6 +17,15 @@ export interface Expense {
 const Expenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const navigate = useNavigate();
+  const totalIncomes = expenses
+    .filter((e) => e.type === "income")
+    .reduce((acc, e) => acc + e.amount, 0)
+    .toFixed(2);
+  const totalExpenses = expenses
+    .filter((e) => e.type === "expense")
+    .reduce((acc, e) => acc + e.amount, 0)
+    .toFixed(2);
+  const total = Number(totalIncomes) - Number(totalExpenses);
 
   useEffect(() => {
     fetchExpenses();
@@ -65,7 +75,7 @@ const Expenses = () => {
             onClick={handleAdd}
             className="cursor-pointer flex items-center gap-2 bg-gradient-to-r from-blue-900 to-purple-900 hover:from-blue-800 hover:to-purple-800 text-white px-4 py-2 rounded-lg font-semibold transition shadow-lg"
           >
-            <FaPlus /> Aggiungi Spesa
+            <FaPlus /> Aggiungi Movimento
           </button>
         </div>
 
@@ -102,14 +112,18 @@ const Expenses = () => {
                     <td className="px-4 py-3 text-gray-700">
                       {new Date(expense.date).toLocaleDateString()}
                     </td>
-                    <td
-                      className={`px-4 py-3 font-semibold ${
-                        expense.type === "income"
-                          ? "text-blue-900"
-                          : "text-purple-700"
-                      }`}
-                    >
-                      {expense.type === "income" ? "Entrata" : "Spesa"}
+                    <td className="px-4 py-3 text-gray-700">
+                      {expense.type === "income" ? (
+                        <span>
+                          <LuArrowUpToLine className="inline mr-1 text-green-600" />
+                          Entrata
+                        </span>
+                      ) : (
+                        <span>
+                          <LuArrowDownFromLine className="inline mr-1 text-red-600" />
+                          Spesa
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
                       {expense.category}
@@ -157,6 +171,26 @@ const Expenses = () => {
             </table>
           </div>
         )}
+        <div className="flex justify-between gap-6 pt-4 px-3 text-gray-600 font-semibold border-t border-gray-200">
+          <div className="flex justify-start gap-6">
+            <p>
+              Totale spese:{" "}
+              <span className="text-red-600">€ {totalExpenses}</span>
+            </p>
+            <p>
+              Totale entrate:{" "}
+              <span className="text-green-600">€ {totalIncomes}</span>
+            </p>
+          </div>
+          <div>
+            <p>
+              Saldo totale:{" "}
+              <span className={total >= 0 ? "text-green-600" : "text-red-600"}>
+                € {total}
+              </span>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

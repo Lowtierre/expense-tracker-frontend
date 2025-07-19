@@ -59,7 +59,7 @@ const AddExpense = () => {
       toast.success("Movimento salvato!");
       reset();
 
-      navigate("/expenses");
+      navigate("/");
     } catch (error: any) {
       console.error(error);
       toast.error(

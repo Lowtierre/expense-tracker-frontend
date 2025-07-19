@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import EditExpense from "./pages/EditExpense";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               />
 
               {/* rotte pubbliche */}
+              <Route path="*" element={<NotFound />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
               <Route path="forgot-password" element={<ForgotPassword />} />
